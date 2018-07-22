@@ -1,0 +1,369 @@
+==========================SQL.TXT==========================
+CREATE  TABLE  SELECT_BOOKS (BOOKID VARCHAR2(10),
+								BOOKNAME VARCHAR2(30),
+								AUTHORNAME VARCHAR2(30),
+								STATUS VARCHAR2(10),
+								CATEGORY  VARCHAR2(20));
+
+========================web.xml=============================
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+	<welcome-file-list>
+		<welcome-file>Search.jsp</welcome-file>
+	</welcome-file-list>
+
+	<servlet>
+	  <servlet-name>search</servlet-name>
+	  <servlet-class>SelectedBooks</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+	  <servlet-name>search</servlet-name>
+	  <url-pattern>/BookSearchServlet</url-pattern>
+	</servlet-mapping>
+</web-app>
+
+=========================Search.jsp======================
+<html>
+
+	<script language = "javascript">
+	
+	function isHtml()
+	{
+		f.source.value = "Html";
+		validate();	
+	}
+
+	function isExcel()
+	{
+		f.source.value = "Excel";
+		validate();	
+	}
+
+	function validate()
+	{
+		if(f.category.selectedIndex == '0')
+		{
+			alert("You should select Category !!!");
+			f.category.focus();
+			return false;
+		}
+		else
+		{
+			f.submit();
+			return true;
+		}
+	}
+
+	</script>
+
+	<body>
+		<form name=f  action="./BookSearchServlet"  method="post">
+			<center>
+			<span style= "width=500;height=60;filter:shadow(color=pink,direction=135)">
+			<font color=red size=5>Search for Books</font>
+			<hr color=orange width=50%>
+			</span></center>
+
+			<table border=1 cellpadding=4 cellspacing=4 align=center 	bgcolor='lavender'>
+			<tr>
+				<th>Select Category</th>
+				<th>
+					<select name='category'>
+						<option selected value=''>Select a value</option>
+						<option value='java'>JAVA</option>
+						<option value='.net'>.NET</option>
+						<option value='jscript'>JavaScript</option>
+					</select>
+				</th>
+			</tr>
+			<tr>
+				<th><input type='button' value='Html Output' onClick='isHtml()'></th>
+				<th><input type='button' value='Excel Output' onClick='isExcel()'></th>
+			</tr>
+			</table>
+
+			<input type='text' name='source' readonly style='visibility:hidden'>
+		</form>
+	</body>
+</html>
+
+===========================SelectedBooks.java==============================
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.*;
+import java.util.*;
+import beans.DbConnector;
+
+public class SelectedBooks extends HttpServlet
+{
+	public void doPost(HttpServletRequest req, HttpServletResponse res)
+	{
+		try
+		{
+			String cat = req.getParameter("category");
+			String checkAction=req.getParameter("source");
+
+			DbConnector dbc = new DbConnector();
+
+			ArrayList al = dbc.search(cat);
+			req.setAttribute("list", al);
+			req.setAttribute("category", cat);
+
+			String target;
+			if(checkAction.equalsIgnoreCase("Html"))
+					target = "HtmlPrint.jsp";
+			else
+					target = "ExcelScreen.jsp";
+
+			RequestDispatcher rd  = null;
+			rd = req.getRequestDispatcher(target);
+			if(rd != null)
+				rd.forward(req,res);
+		} // try
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	} // doPost()
+} // class
+
+
+
+
+==========================DbConnector.java===========================
+package beans;
+
+import java.io.*;
+import java.sql.*;
+import java.util.ArrayList;
+
+public class DbConnector
+{
+	private int found=0;
+
+	public Connection getConnection()
+	{
+		Connection con = null;
+		try
+		{
+			Class.forName("oracle.jdbc.driver.OracleDriver");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:oracle","scott","tiger");
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return con;
+	}
+
+	public ArrayList search(String category)
+	{
+		Connection con = getConnection();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		ArrayList al = new ArrayList();
+
+		try
+		{
+			String searchQuery;
+			searchQuery = "SELECT BOOKID, BOOKNAME, AUTHORNAME, STATUS " +
+									" FROM SELECT_BOOKS WHERE CATEGORY = ? ";
+			ps = con.prepareStatement(searchQuery);
+
+			ps.setString(1, category);
+			rs = ps.executeQuery();
+
+			while(rs.next())
+			{
+				BookBean b = new BookBean();
+				b.setBookId(rs.getString(1));
+				b.setBookName(rs.getString(2));
+				b.setAuthorName(rs.getString(3));
+				b.setStatus(rs.getString(4));
+				al.add(b);
+			}
+			rs.close();
+		}
+		catch(Exception e)
+		{
+		  e.printStackTrace();
+		}
+		finally
+		{
+			if(ps != null)
+			{
+				try
+				{
+					ps.close();
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+			if(con != null)
+			{
+				try
+				{
+					con.close();
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+		} // finally
+		return al;
+	} // search()
+} // class
+
+==================================BookBean.java=======================
+package beans;
+
+public class BookBean
+{
+	private String bookid;
+	private String bookname;
+	private String authorname;
+	private String status;
+	
+	public void setBookId(String bookid)
+	{
+		this.bookid = bookid;
+	}
+	public String getBookId()
+	{
+		return bookid;
+	}
+	public void setBookName(String bookname)
+	{
+		this.bookname = bookname;
+	}
+	public String getBookName()
+	{
+		return bookname;
+	}
+	public void setAuthorName(String authorname)
+	{
+		this.authorname = authorname;
+	}
+	public String getAuthorName()
+	{
+		return authorname;
+	}
+	public void setStatus(String status)
+	{
+		this.status = status;
+	}
+	public String getStatus()
+	{
+		return status;
+	}
+} // BookBean class.
+
+
+
+
+
+
+
+================================HtmlPrint.jsp===============================
+<%@page import="java.util.ArrayList, beans.BookBean" %>
+<%
+	ArrayList al = (ArrayList)request.getAttribute("list");
+	String cat = (String)request.getAttribute("category");
+%>
+
+<html>
+
+	<script language='javascript'>
+		function showprint()
+		{
+			frames.focus();
+			frames.print();
+		}
+	</script>
+
+<body>
+	<form name='f'>
+	<center><h2><u>
+	Books belonging to category <%= cat.toUpperCase() %>
+	<u></h2></center>
+	<br>
+		
+	<table border="1" width="100%">
+		<tr>
+			<th>Sno</th>
+			<th>BookId</th>
+			<th>BookName</th>
+			<th>AuthorName</th>
+			<th>Status</th>
+		</tr>
+		<%
+			for(int i = 0; i < al.size(); i++)
+			{
+				BookBean sb=(BookBean)al.get(i);
+		%>
+		<tr>
+			<td><%= (i+1) %></td>
+			<td><%= sb.getBookId() %></td>
+			<td><%= sb.getBookName() %></td>
+			<td><%= sb.getAuthorName() %></td>
+			<td><%= sb.getStatus() %></td>
+		</tr>
+		<%
+			}
+		%>
+	</table>
+
+	<center>
+	<a href="javascript:showprint()">Print</a>
+	</center>
+	</form>
+</body>
+</html>
+
+============================ExcelScreen.jsp==================================
+<%@page import="java.util.ArrayList,beans.BookBean"%>
+<%
+	response.addHeader("Content-Disposition","attachment;filename=Title1.xls");
+	response.setContentType("application/ms-excel");	
+
+	ArrayList al = (ArrayList)request.getAttribute("list");
+	String cat = (String)request.getAttribute("category");
+%>
+
+<center><h2><u>
+	Books belonging to category <%= cat.toUpperCase() %>
+<u></h2></center>
+<br>
+
+<table border="1" width="100%">
+	<tr>
+		<th>Sno</th>
+		<th>BookId</th>
+		<th>BookName</th>
+		<th>AuthorName</th>
+		<th>Status</th>
+	</tr>
+	<%
+	
+	for(int i = 0; i < al.size(); i++)
+	{
+		BookBean sb=(BookBean)al.get(i);
+	%>
+		<tr>
+			<td><%= (i+1) %></td>
+			<td><%= sb.getBookId() %></td>
+			<td><%= sb.getBookName() %></td>
+			<td><%= sb.getAuthorName() %></td>
+			<td><%= sb.getStatus() %></td>
+		</tr>
+	<%
+		}
+	%>
+</table>

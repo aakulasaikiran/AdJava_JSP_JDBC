@@ -1,0 +1,218 @@
+//JSP
+
+Implicit Objects
+============
+
+request       --->javax.servlet.http.HttpServletRequest
+response  -->javax.servlet.http.HttpServletResponse
+out    --> javax.servlet.jsp.JspWriter
+
+session    --> javax.servlet.http.HttpSession
+
+page  --->   this(current invoking object)
+
+pageContext   --->javax.servlet.jsp.PageContext
+
+application   --->javax.servlet.ServletContext
+
+config   --->javax.servlet.ServletConfig
+exception---> java.lang.Throwable
+
+Tags
+====
+
+Scripting Tags
+===========
+
+1.  Scriptlet
+
+<%
+    java code
+placed in service
+%>
+
+   xml
+   -----
+<jsp:scriptlet>
+javacode
+</jsp:scriptlet>
+
+2. Declarative
+
+<%!
+Global Decl,
+to impl user defined Methods,
+to impl init & destroy
+%>
+<jsp:declaration>
+</jsp:declaration>
+
+3. Expression
+
+<%=
+java expression
+%>
+
+<%=1+2%>
+
+out.println(1+2);
+
+print ---> 3
+xml syn
+  <jsp:expression>
+  </jsp:expression>
+
+JSP Comments
+============
+
+<%--
+
+--%>
+
+Directives
+=======
+
+<%@directive_name attributes%>
+
+1. Page Directive
+
+<%@page attributes%>
+
+<jsp:directive.page attributes/>
+
+attributes
+=======
+language="java"
+import="java.util.*,java.net.*,..."
+extends=" class name " //not recomended to use
+contentType=" text/html "
+buffer="8kb" or none
+autoFlush="true"  (false) 
+session="true"       (false)
+errorPage=" url "
+isErrorPage="false" (true)
+isThreadSafe="false"(true)
+info="  string " //the short desc about jsp page
+//used with getServletInfo() method impl
+  
+2. Include Directive
+
+<%@include file=" url "%>
+
+<jsp:directive.include file=" url "/>
+
+3. Taglib Directive
+
+<%@taglib uri="" prefix=""%>
+
+decl namespace in 
+<jsp:root  xmlns:prefix="uri">
+
+</jsp:root>
+
+
+Action Tags
+=========
+1. UseBean
+syn :<jsp:useBean attributes>
+	</jsp:useBean>
+
+//used for creating /locating an instance of javabean
+
+attributes
+=======
+A.id="  "//instance variable name
+B.class="  "  //a fully qualified class name
+C.scope= "page|session|request|application"
+page
+===
+available within the decl jsp page
+
+request
+=====
+available throught the request
+
+session
+=====
+available within session
+
+application
+========
+available for all pages within the context
+
+
+D. beanName="   "
+
+E. type="   "
+//can be used with class or beanName or without class and beanName
+
+ex <jsp:usebean id="st" class="beans1.StudentBean" scope="session" />
+
+
+2. setProperty
+
+//to call setXXX methods
+
+<jsp:setProperty attributes/>
+
+attributes
+=======
+property="   "//method name // XXX part of setXXX()
+name="   "   //id atrribute value given in the<jsp:usebean >
+value="  "   //arg / value to be set
+param="  "  //input(request) parameter name
+Note:
+value or param --> any one has to be used
+ex:
+<jsp:setProperty name="st" property="sno" value="567"/>
+
+3. Get Property
+
+//to call getXXX methods
+
+<jsp:getProperty attributes/>
+
+attributes
+=======
+name="   "    //id given in <jsp:use bean>
+property="  "   //the XXX part in getXXX method
+
+<jsp:getProperty name="st" property="sno" />
+
+4. Include
+=======
+<jsp:include page="relative url" flush="false/true"/>
+
+5. Forward
+========
+<jsp:forward page="relative url"/>
+
+6.Param
+======
+
+<jsp:param name=" " value="  "/>
+
+//within forward,include and params
+
+7.Params
+=======
+<jsp:params>
+  <jsp:param name="" value=""/>
+</jsp:params>
+
+//used within jsp:plugin
+
+8.Plugin
+======
+<jsp:plugin attributes>
+<jsp:params></jsp:params>
+</jsp:plugin>
+
+
+
+
+
+
+
+
+

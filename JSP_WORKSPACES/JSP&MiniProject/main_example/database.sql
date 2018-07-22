@@ -1,0 +1,1 @@
+create table STUDENT_INFO(STU_ID number,STU_NAME varchar2(30),STU_ADD varchar2(30));

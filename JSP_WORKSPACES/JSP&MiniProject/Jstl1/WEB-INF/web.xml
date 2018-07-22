@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+    <display-name>JSP Tags Example </display-name>
+    <description>
+      Shows how to use custom jsp tags in our apps.
+    </description>
+
+
+    <taglib>
+        <taglib-uri>http://java.sun.com/jstl/core</taglib-uri>
+        <taglib-location>
+           /WEB-INF/tlib/c.tld
+        </taglib-location>
+    </taglib>
+
+
+    <taglib>
+        <taglib-uri>http://java.sun.com/jstl/sql</taglib-uri>
+        <taglib-location>
+           /WEB-INF/tlib/sql.tld
+        </taglib-location>
+    </taglib>
+</web-app>

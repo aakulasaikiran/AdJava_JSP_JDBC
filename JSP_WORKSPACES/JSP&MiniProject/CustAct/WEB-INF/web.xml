@@ -1,0 +1,6 @@
+<web-app>
+   <taglib>
+       <taglib-uri>abc</taglib-uri>
+       <taglib-location>/WEB-INF/first.tld</taglib-location>
+  </taglib>
+  </web-app>

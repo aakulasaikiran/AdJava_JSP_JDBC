@@ -1,0 +1,10 @@
+<web-apps>
+<servlet>
+<servlet-name>Adrotator</servlet-name>
+<servlet-class>myapps/Rotator</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>Adrotator</servlet-name>
+<url-pattern>Rotator</url-pattern>
+</servlet-mapping>
+</web-apps>
